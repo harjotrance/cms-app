@@ -1,0 +1,6 @@
+{
+  "name": "Image Slider",
+  "description": "Adds an image slider content block.",
+  "contentBlockType": "imageSlider",
+  "component": "./index.js"
+}

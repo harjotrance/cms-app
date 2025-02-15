@@ -1,0 +1,6 @@
+{
+  "name": "Video Embed",
+  "description": "Embed a video from YouTube or Vimeo.",
+  "contentBlockType": "videoEmbed",
+  "component": "./index.js"
+}

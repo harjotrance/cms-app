@@ -1,0 +1,6 @@
+{
+  "name": "Greeting Plugin",
+  "description": "Adds a simple greeting block.",
+  "contentBlockType": "greeting",
+  "component": "./index.js"
+}

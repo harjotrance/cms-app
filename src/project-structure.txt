@@ -1,0 +1,54 @@
+Folder PATH listing
+Volume serial number is 6675-535F
+C:.
+|   project-structure.txt
+|   
++---components
+|   \---ui
+|           button.tsx
+|           form.tsx
+|           input.tsx
+|           label.tsx
+|           
++---lib
+|       utils.ts
+|       
++---pages
+|   |   index.tsx
+|   |   _app.tsx
+|   |   _document.tsx
+|   |   
+|   +---admin
+|   |   |   index.js
+|   |   |   
+|   |   +---pages
+|   |   |       index.js
+|   |   |       new.js
+|   |   |       [id].js
+|   |   |       
+|   |   \---posts
+|   |           index.js
+|   |           new.js
+|   |           [id].js
+|   |           
+|   +---api
+|   |   |   hello.ts
+|   |   |   
+|   |   +---pages
+|   |   |       index.js
+|   |   |       [id].js
+|   |   |       
+|   |   \---posts
+|   |           index.js
+|   |           [id].js
+|   |           
+|   +---pages
+|   |       [slug].tsx
+|   |       
+|   \---posts
+|           index.tsx
+|           [slug].tsx
+|           
+\---styles
+        globals.css
+        

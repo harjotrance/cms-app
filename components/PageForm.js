@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react"; // Import useRef
 import { useRouter } from "next/router";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-// Import Shadcn UI form components
+// Import Shadcn UI form components (keeping Button, Input, Form, etc.)
 import {
   Form,
   FormControl,
@@ -17,9 +17,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+  FormDescription,
+} from "../src/components/ui/form";
+import { Input } from "../src/components/ui/input";
+import { Button } from "../src/components/ui/button";
 
 // Dynamic import for TinyMCE Editor
 const Editor = dynamic(
@@ -27,7 +28,7 @@ const Editor = dynamic(
   { ssr: false }
 );
 
-// Zod schema for form validation
+// Zod schema for form validation (no changes needed)
 const formSchema = z.object({
   title: z.string().min(1, {
     message: "Title is required.",
@@ -36,19 +37,24 @@ const formSchema = z.object({
     message: "Slug is required.",
   }),
   content: z.string().optional(),
+  postIds: z.array(z.string()).optional(),
 });
 
 const PageForm = ({ pageId }) => {
   const [content, setContent] = useState("");
   const [availablePlugins, setAvailablePlugins] = useState([]);
   const [isPluginsLoaded, setIsPluginsLoaded] = useState(false);
+  const [availablePosts, setAvailablePosts] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown visibility
   const router = useRouter();
+  const dropdownRef = useRef(null); // Ref for dropdown container
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       slug: "",
       content: "",
+      postIds: [],
     },
     mode: "onSubmit",
   });
@@ -65,10 +71,26 @@ const PageForm = ({ pageId }) => {
         setIsPluginsLoaded(true);
       } catch (error) {
         console.error("Error fetching plugins:", error);
-        setIsPluginsLoaded(true); // Still set to true so editor loads
+        setIsPluginsLoaded(true);
       }
     };
+
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch("/api/posts");
+        if (response.ok) {
+          const postsData = await response.json();
+          setAvailablePosts(postsData);
+        } else {
+          console.error("Failed to fetch posts");
+        }
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    };
+
     fetchPlugins();
+    fetchPosts();
   }, []);
 
   useEffect(() => {
@@ -80,6 +102,7 @@ const PageForm = ({ pageId }) => {
           title: data.title || "",
           slug: data.slug || "",
           content: data.content || "",
+          postIds: data.postIds || [],
         });
         setContent(data.content || "");
       };
@@ -110,6 +133,33 @@ const PageForm = ({ pageId }) => {
     }
   };
 
+  // Function to handle checkbox change
+  const handlePostSelectionChange = (postId, isChecked) => {
+    const currentPostIds = form.getValues("postIds") || []; // Get current postIds from form
+    let updatedPostIds;
+
+    if (isChecked) {
+      updatedPostIds = [...currentPostIds, postId]; // Add postId if checked
+    } else {
+      updatedPostIds = currentPostIds.filter((id) => id !== postId); // Remove postId if unchecked
+    }
+
+    form.setValue("postIds", updatedPostIds); // Update form state with new postIds
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
+
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="mx-auto max-w-3xl">
@@ -122,23 +172,16 @@ const PageForm = ({ pageId }) => {
               onSubmit={form.handleSubmit(handleSubmit)}
               className="space-y-6"
             >
+              {/* Title and Slug FormFields - No Changes Needed */}
               <FormField
                 control={form.control}
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel
-                      style={{
-                        marginLeft: "4px",
-                      }}
-                    >
-                      Title
-                    </FormLabel>
+                    <FormLabel style={{ marginLeft: "4px" }}>Title</FormLabel>
                     <FormControl>
                       <Input
-                        style={{
-                          marginBottom: "12px",
-                      }}
+                        style={{ marginBottom: "12px" }}
                         placeholder="Enter page title"
                         {...field}
                         className="bg-background"
@@ -153,18 +196,10 @@ const PageForm = ({ pageId }) => {
                 name="slug"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel
-                      style={{
-                        marginLeft: "4px",
-                      }}
-                    >
-                      Slug
-                    </FormLabel>
+                    <FormLabel style={{ marginLeft: "4px" }}>Slug</FormLabel>
                     <FormControl>
                       <Input
-                        style={{
-                          marginBottom: "12px",
-                      }}
+                        style={{ marginBottom: "12px" }}
                         placeholder="Enter page slug"
                         {...field}
                         className="bg-background"
@@ -174,18 +209,89 @@ const PageForm = ({ pageId }) => {
                   </FormItem>
                 )}
               />
+{/* 
+             <FormField
+                control={form.control}
+                name="postIds"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel style={{ marginLeft: "4px", marginTop: "12px" }}>
+                      Associated Posts
+                    </FormLabel>
+                    <FormControl>
+                      <div ref={dropdownRef} className="relative">
+                        
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                          className="w-full justify-start text-left bg-background" // Match input style
+                          type="button"
+                        >
+                          {field.value && field.value.length > 0
+                            ? `${field.value.length} posts selected` // Display count of selected posts
+                            : "Select posts to associate"}
+                        </Button>
+
+                        Dropdown Content (Checkbox List)
+                        {isDropdownOpen && (
+                          <div style={{ zIndex: "99" }} className="absolute z-10 mt-1 w-full rounded-lg bg-popover shadow-md border border-border overflow-hidden">
+                            {" "}
+                            
+                            <div className="max-h-60 overflow-y-auto p-3">
+                              {" "}
+                              
+                              {availablePosts.map((post) => (
+                                <div
+                                  key={post.id}
+                                  className={`flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-accent transition-colors duration-200 ${
+                                    // Added py-2 for vertical padding, transition for smoother hover
+                                    field.value?.includes(post.id)
+                                      ? "bg-muted"
+                                      : "" // Highlight selected items with bg-muted
+                                  }`}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    id={`post-${post.id}`}
+                                    value={post.id}
+                                    checked={field.value?.includes(post.id)}
+                                    onChange={(e) =>
+                                      handlePostSelectionChange(
+                                        post.id,
+                                        e.target.checked
+                                      )
+                                    }
+                                    className="ring-offset-background focus-visible:ring-ring h-4 w-4 border-border focus-visible:ring-2 focus-visible:ring-offset-2 rounded focus:outline-none disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                                  />
+                                  <label
+                                    style={{ marginLeft: "8px" }}
+                                    htmlFor={`post-${post.id}`}
+                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                  >
+                                    {post.title}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormDescription>
+                      Choose one or more posts to display on this page.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              /> */}
+
+              {/* Content FormField - No Changes Needed */}
               <FormField
                 control={form.control}
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel
-                      style={{
-                        marginLeft: "4px",
-                      }}
-                    >
-                      Content
-                    </FormLabel>
+                    <FormLabel style={{ marginLeft: "4px" }}>Content</FormLabel>
                     <FormControl>
                       <div className="rounded-md shadow-sm overflow-hidden">
                         {isPluginsLoaded ? (
@@ -273,6 +379,7 @@ const PageForm = ({ pageId }) => {
                   </FormItem>
                 )}
               />
+              {/* Buttons - No Changes Needed */}
               <div className="flex justify-center gap-4 pt-4 mt-8">
                 <Link href="/admin/pages">
                   <Button variant="outline" type="button">

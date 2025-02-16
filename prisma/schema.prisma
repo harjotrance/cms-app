@@ -14,22 +14,31 @@ generator client {
 }
 
 model Post {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   title     String
   slug      String   @unique
   content   String?  @db.Text
-  pageId    String?  // Add this field to store the parent page ID
-  page      Page?    @relation(fields: [pageId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  pageId    String?
+  page      Page?    @relation(fields: [pageId], references: [id])
 }
 
 model Page {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   title     String
   slug      String   @unique
   content   String?  @db.Text
-  posts     Post[]   // Add this line to create the relationship
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  posts     Post[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      String   @default("user")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

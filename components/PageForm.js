@@ -296,7 +296,7 @@ const PageForm = ({ pageId }) => {
                       <div className="rounded-md shadow-sm overflow-hidden">
                         {isPluginsLoaded ? (
                           <Editor
-                            apiKey="i2mxzn8jvvrpdusumcbspx8kalj3aqe5uyjvwp9ygyqg6kwt"
+                            apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
                             value={content}
                             onEditorChange={(newContent) => {
                               setContent(newContent);

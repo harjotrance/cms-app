@@ -17,7 +17,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
+  // FormDescription,
 } from "../src/components/ui/form";
 import { Input } from "../src/components/ui/input";
 import { Button } from "../src/components/ui/button";
@@ -44,8 +44,8 @@ const PageForm = ({ pageId }) => {
   const [content, setContent] = useState("");
   const [availablePlugins, setAvailablePlugins] = useState([]);
   const [isPluginsLoaded, setIsPluginsLoaded] = useState(false);
-  const [availablePosts, setAvailablePosts] = useState([]);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown visibility
+  // const [availablePosts, setAvailablePosts] = useState([]);
+  // const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State for dropdown visibility
   const router = useRouter();
   const dropdownRef = useRef(null); // Ref for dropdown container
   const form = useForm({
@@ -134,18 +134,18 @@ const PageForm = ({ pageId }) => {
   };
 
   // Function to handle checkbox change
-  const handlePostSelectionChange = (postId, isChecked) => {
-    const currentPostIds = form.getValues("postIds") || []; // Get current postIds from form
-    let updatedPostIds;
+  // const handlePostSelectionChange = (postId, isChecked) => {
+  //   const currentPostIds = form.getValues("postIds") || []; // Get current postIds from form
+  //   let updatedPostIds;
 
-    if (isChecked) {
-      updatedPostIds = [...currentPostIds, postId]; // Add postId if checked
-    } else {
-      updatedPostIds = currentPostIds.filter((id) => id !== postId); // Remove postId if unchecked
-    }
+  //   if (isChecked) {
+  //     updatedPostIds = [...currentPostIds, postId]; // Add postId if checked
+  //   } else {
+  //     updatedPostIds = currentPostIds.filter((id) => id !== postId); // Remove postId if unchecked
+  //   }
 
-    form.setValue("postIds", updatedPostIds); // Update form state with new postIds
-  };
+  //   form.setValue("postIds", updatedPostIds); // Update form state with new postIds
+  // };
 
   // Close dropdown when clicking outside
   useEffect(() => {

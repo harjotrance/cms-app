@@ -1,22 +1,29 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
 // Import Shadcn UI form components
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 // Dynamic import for TinyMCE Editor
 const Editor = dynamic(
-  () => import('@tinymce/tinymce-react').then(mod => mod.Editor),
+  () => import("@tinymce/tinymce-react").then((mod) => mod.Editor),
   { ssr: false }
 );
 
@@ -49,15 +56,15 @@ const PageForm = ({ pageId }) => {
   useEffect(() => {
     const fetchPlugins = async () => {
       try {
-        const response = await fetch('/api/plugins');
+        const response = await fetch("/api/plugins");
         if (!response.ok) {
-          throw new Error('Failed to fetch plugins');
+          throw new Error("Failed to fetch plugins");
         }
         const plugins = await response.json();
         setAvailablePlugins(plugins);
         setIsPluginsLoaded(true);
       } catch (error) {
-        console.error('Error fetching plugins:', error);
+        console.error("Error fetching plugins:", error);
         setIsPluginsLoaded(true); // Still set to true so editor loads
       }
     };
@@ -111,15 +118,27 @@ const PageForm = ({ pageId }) => {
             {pageId ? "Edit Page" : "Create New Page"}
           </h2>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className="space-y-6"
+            >
               <FormField
                 control={form.control}
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Title</FormLabel>
+                    <FormLabel
+                      style={{
+                        marginLeft: "4px",
+                      }}
+                    >
+                      Title
+                    </FormLabel>
                     <FormControl>
                       <Input
+                        style={{
+                          marginBottom: "12px",
+                      }}
                         placeholder="Enter page title"
                         {...field}
                         className="bg-background"
@@ -134,9 +153,18 @@ const PageForm = ({ pageId }) => {
                 name="slug"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Slug</FormLabel>
+                    <FormLabel
+                      style={{
+                        marginLeft: "4px",
+                      }}
+                    >
+                      Slug
+                    </FormLabel>
                     <FormControl>
                       <Input
+                        style={{
+                          marginBottom: "12px",
+                      }}
                         placeholder="Enter page slug"
                         {...field}
                         className="bg-background"
@@ -151,7 +179,13 @@ const PageForm = ({ pageId }) => {
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Content</FormLabel>
+                    <FormLabel
+                      style={{
+                        marginLeft: "4px",
+                      }}
+                    >
+                      Content
+                    </FormLabel>
                     <FormControl>
                       <div className="rounded-md shadow-sm overflow-hidden">
                         {isPluginsLoaded ? (
@@ -165,40 +199,67 @@ const PageForm = ({ pageId }) => {
                             init={{
                               height: 500,
                               menubar: false,
-                              skin: 'oxide-dark',
-                              color_scheme: 'dark',
-                              content_css: 'dark',
+                              skin: "oxide-dark",
+                              color_scheme: "dark",
+                              content_css: "dark",
                               plugins: [
-                                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
-                                'preview', 'anchor', 'searchreplace', 'visualblocks', 'code',
-                                'fullscreen', 'insertdatetime', 'media', 'table', 'code', 'help',
-                                'wordcount'
+                                "advlist",
+                                "autolink",
+                                "lists",
+                                "link",
+                                "image",
+                                "charmap",
+                                "preview",
+                                "anchor",
+                                "searchreplace",
+                                "visualblocks",
+                                "code",
+                                "fullscreen",
+                                "insertdatetime",
+                                "media",
+                                "table",
+                                "code",
+                                "help",
+                                "wordcount",
                               ],
-                              toolbar: 'undo redo | blocks | ' +
-                                'bold italic forecolor | alignleft aligncenter ' +
-                                'alignright alignjustify | bullist numlist outdent indent | ' +
-                                'removeformat | help | pluginbuttons',
-                              content_style: 'body { font-family:Helvetica,Arial,sans-serif; }',
+                              toolbar:
+                                "undo redo | blocks | " +
+                                "bold italic forecolor | alignleft aligncenter " +
+                                "alignright alignjustify | bullist numlist outdent indent | " +
+                                "removeformat | help | pluginbuttons",
+                              content_style:
+                                "body { font-family:Helvetica,Arial,sans-serif; }",
                               setup: (editor) => {
                                 if (availablePlugins.length > 0) {
-                                  availablePlugins.forEach(plugin => {
-                                    editor.ui.registry.addButton(`plugin-${plugin.contentBlockType}`, {
-                                      text: plugin.name,
-                                      tooltip: plugin.description,
-                                      onAction: () => {
-                                        const placeholder = `[${plugin.contentBlockType} : plugin added]`;
-                                        editor.insertContent(placeholder);
+                                  availablePlugins.forEach((plugin) => {
+                                    editor.ui.registry.addButton(
+                                      `plugin-${plugin.contentBlockType}`,
+                                      {
+                                        text: plugin.name,
+                                        tooltip: plugin.description,
+                                        onAction: () => {
+                                          const placeholder = `[plugin:${plugin.contentBlockType} data='{}']`;
+                                          editor.insertContent(placeholder);
+                                        },
                                       }
-                                    });
+                                    );
                                   });
 
-                                  editor.ui.registry.addGroupToolbarButton('pluginbuttons', {
-                                    icon: 'plugins',
-                                    tooltip: 'Insert Plugin',
-                                    items: availablePlugins.map(plugin => `plugin-${plugin.contentBlockType}`).join(' ')
-                                  });
+                                  editor.ui.registry.addGroupToolbarButton(
+                                    "pluginbuttons",
+                                    {
+                                      icon: "plugins",
+                                      tooltip: "Insert Plugin",
+                                      items: availablePlugins
+                                        .map(
+                                          (plugin) =>
+                                            `plugin-${plugin.contentBlockType}`
+                                        )
+                                        .join(" "),
+                                    }
+                                  );
                                 }
-                              }
+                              },
                             }}
                           />
                         ) : (
@@ -212,7 +273,7 @@ const PageForm = ({ pageId }) => {
                   </FormItem>
                 )}
               />
-              <div className="flex justify-center gap-4 pt-4">
+              <div className="flex justify-center gap-4 pt-4 mt-8">
                 <Link href="/admin/pages">
                   <Button variant="outline" type="button">
                     Cancel

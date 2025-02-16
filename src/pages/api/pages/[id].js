@@ -4,9 +4,9 @@ import { slugify } from '../../../../utils/slugify';
 const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
-  const pageId = parseInt(req.query.id, 10);
+  const pageId = req.query.id;
 
-  if (isNaN(pageId)) {
+  if (!pageId) {
     return res.status(400).json({ error: 'Invalid page ID' });
   }
 

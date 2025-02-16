@@ -193,7 +193,7 @@ const PostForm = ({ postId }) => {
                                                                             text: plugin.name,
                                                                             tooltip: plugin.description,
                                                                             onAction: () => {
-                                                                                const placeholder = `[${plugin.contentBlockType} : plugin added]`;
+                                                                                const placeholder = `[plugin:${plugin.contentBlockType} data='{}']`;
                                                                                 editor.insertContent(placeholder);
                                                                             }
                                                                         });
